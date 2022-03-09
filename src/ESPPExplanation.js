@@ -7,7 +7,7 @@ import Stock from "./stock/Stock"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ESPPExplanation = (props) => {
-const {route,navigation,} = props 
+const {route,navigation,} = props
 
 const [isPrompt, setIsPrompt] = useState(false);
 const [fileName, setFileName ] = useState("");

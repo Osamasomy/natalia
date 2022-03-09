@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import {View, Text, TextInput, Button, StyleSheet} from "react-native"
 import Plotly from 'react-native-plotly';
+import {fetchStockApi} from "../apis"
+
 
 const stockName  = ""
 const API_KEY = 'GO1E2NOWMYUTPDDS';
@@ -35,26 +37,36 @@ class Stock extends Component {
       }
 
     componentDidMount(){ 
-      this.fetchStock() 
+      // this.fetchStock() 
       this.getCategoryName()
 
     }
 
+
+
     getCategoryName = ()=>{
+
+      let stockName = this.state.value; 
+
+      fetchStockApi(stockName, (res)=>{
+        this.setState({
+          name: res.companyName,
+        })
+      })
       
-      let API_Call = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${this.state.value}&apikey=${API_KEY}`
-      fetch(API_Call)
-        .then(response=> response.json())
-        .then(res => {
-          if(res.Name){
-            this.setState({
-              name: res.Name
-            })
-          }
-        })
-        .catch(error=>{
-          console.log(error)
-        })
+      // let API_Call = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${this.state.value}&apikey=${API_KEY}`
+      // fetch(API_Call)
+      //   .then(response=> response.json())
+      //   .then(res => {
+      //     if(res.Name){
+      //       this.setState({
+      //         name: res.Name
+      //       })
+      //     }
+      //   })
+      //   .catch(error=>{
+      //     console.log(error)
+      //   })
         
       
     }
@@ -121,7 +133,7 @@ class Stock extends Component {
                <View style={{margin: 20, marginBottom: 0}}>
                {
                  isHeader?
-                  <View style={{marginVertical: 10, flexDirection: 'row', justifyContent: 'space-space-between', alignItems: "center"}}>
+                  <View style={{marginVertical: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: "center"}}>
                     <TextInput
                       style={{flex: 1}}
                       placeholder = {"Please Enter Value"}
@@ -166,7 +178,7 @@ class Stock extends Component {
                   />
 
                   <View style={{}}>
-                  <Text style={styles.description}> Latest stock Price {latestValues?.value?latestValues.value["1. open"]: ""}</Text>
+                  <Text style={styles.description}> Latest stock Price {latestValues?.value || ""}</Text>
                   <Text style={styles.description}>as of {latestValues.key?latestValues.key: 0}</Text>
                   </View>
 

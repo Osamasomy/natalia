@@ -29,7 +29,9 @@ const AllCalcs = ({onCalculate = false}) => {
     const [state, setState] = React.useState ({
       stockChartXValues: [],
       stockChartYValues: [],
-      latestValues: {},
+      latestValues: {
+        value: 0,
+      },
       value: ""
     });
 
@@ -71,7 +73,7 @@ const AllCalcs = ({onCalculate = false}) => {
     const [getESPPExplanation, setESPPExplanation] = useState([]);
 
 function calcAllCalcs (){
-    const CurrentMarketPrice = latestValues?.value?latestValues.value["1. open"]: 0
+    const CurrentMarketPrice = state?.latestValues?.value || 0
      let discountedPurchasePrice1=( parseInt(LowerPrice) * (1 - parseInt(StockDiscount)/100));
    
 
@@ -122,7 +124,7 @@ const saveESPPExplanation = () => {
       navigation.navigate('ESPPExplanation',{
         history: {
           eSPPExplanation:calculations,
-          latestValues: state.latestValues,
+          latestValues: state.latestValues.value,
           ticker: state.value
         }
       })
@@ -156,30 +158,39 @@ const fetchStock = async () => {
     if(!stockName){
         alert("Nothing...")
         return
-    }    
-    
+    }
     
     let stockChartXValuesFunction =[];
     let stockChartYValuesFunction =[];
     fetchStockApi(stockName,(res)=>{
-        console.log(res , "<----")
-        if(res.error){
-          console.log(res.error)
-        }
-        else{
-            const metaData   = res["Meta Data"]?res["Meta Data"]:[]
-            const timeSeries = res["Time Series (Daily)"]?res["Time Series (Daily)"]: []
-            const key = metaData["3. Last Refreshed"]
-            const latest = timeSeries[key.split(" ")[0]]
-            setState({
-                ...state,
-                latestValues: {
-                  key: key,
-                  value:latest
-                }
-            });
 
-        }
+        console.log(stockName, " <----- ",res.latestPrice , " <----")
+          
+        setState({
+            ...state,
+            latestValues:{
+              value: res.latestPrice
+            }
+          })
+
+          console.log(state.latestValues.value)
+        // if(res.error){
+        //   console.log(res.error)
+        // }
+        // else{
+        //     const metaData   = res["Meta Data"]?res["Meta Data"]:[]
+        //     const timeSeries = res["Time Series (Daily)"]?res["Time Series (Daily)"]: []
+        //     const key = metaData["3. Last Refreshed"]
+        //     const latest = timeSeries[key.split(" ")[0]]
+        //     setState({
+        //         ...state,
+        //         latestValues: {
+        //           key: key,
+        //           value:latest
+        //         }
+        //     });
+
+        // }
     })
 
 }
@@ -191,7 +202,7 @@ const {stockChartXValues,stockChartYValues,value, latestValues} = state
 // const latestYvalue =  stockChartYValues.length > 0?stockChartYValues[stockChartYValues.length-1]: 0
 
 
-
+console.log(latestValues.value)
 return (
 <SafeAreaView style={{flex: 1, backgroundColor: "white"}}>
  <ESPPModal ModalOpen = {ModalOpen} setModalOpen = {()=>setModalOpen(!ModalOpen)} />
@@ -213,21 +224,23 @@ return (
                   
                 />
               <View style={{alignSelf: 'flex-end', marginTop: 15}}>
-                <TouchableOpacity style={{backgroundColor: 'rgb(12,121,42)', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 10}}>
+                <TouchableOpacity onPress = {fetchStock} style={{backgroundColor: 'rgb(12,121,42)', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 10,}}>
                   <Text style={{color:"white", fontWeight: "700", fontSize: 12}}>Fetch Stock</Text>
                 </TouchableOpacity>
-                <Button style={{color:"#15317E"}} title={""} onPress = {fetchStock} />
+                {/* <Button style={{color:"#15317E"}} title={""} onPress = {fetchStock} /> */}
               </View>
             </View>
         
             <View style={{marginVertical: 10}}>
               <Text style={styles.question1}>Current Stock Price - Yesterday's Close</Text>
+
               <TextInput style = {[styles.answer1]}
                   underlineColorAndroid = "transparent"
                   placeholder = "This will calculated automatically"
                   //autoCapitalize = "none"
                   //  value={CurrentMarketPrice}
-                  value={latestValues?.value?latestValues.value["1. open"]: ""}
+                  // value={latestValues?.value?latestValues.value["1. open"]: ""}
+                  value={`${latestValues.value}`}
                   editable = {false}
                   // onChangeText = {CurrentMarketPrice => setCurrentMarketPrice(CurrentMarketPrice)}
                   //keyboardType={'numeric'}

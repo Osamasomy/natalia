@@ -9,7 +9,9 @@ const OptionCalculator = ({navigation})=>{
 const [state, setState] = React.useState ({
       stockChartXValues: [],
       stockChartYValues: [],
-      latestValues: {},
+      latestValues: {
+        value: 0,
+      },
       value: 0,
       interest: 0,
       strike: 0,
@@ -29,24 +31,34 @@ const fetchStock = async () => {
     
     fetchStockApi(stockName,(res)=>{
       console.log(res, "<____")
-      if(res.error){
-        console.log(res.error)
-      }
-      else{
-          const metaData   = res["Meta Data"]?res["Meta Data"]:[]
-          const timeSeries = res["Time Series (Daily)"]?res["Time Series (Daily)"]: []
-          const key = metaData["3. Last Refreshed"]
-          const latest = timeSeries[key.split(" ")[0]]
-          console.log(metaData)
-          setState({
-              ...state,
-              latestValues: {
-                key: key,
-                value:latest
-              }
-          });
+      console.log(stockName, " <----- ",res.latestPrice , " <----")
+          
+      setState({
+          ...state,
+          latestValues:{
+            value: res.latestPrice
+          }
+        })
 
-      }
+        console.log(state.latestValues.value)
+      // if(res.error){
+      //   console.log(res.error)
+      // }
+      // else{
+      //     const metaData   = res["Meta Data"]?res["Meta Data"]:[]
+      //     const timeSeries = res["Time Series (Daily)"]?res["Time Series (Daily)"]: []
+      //     const key = metaData["3. Last Refreshed"]
+      //     const latest = timeSeries[key.split(" ")[0]]
+      //     console.log(metaData)
+      //     setState({
+      //         ...state,
+      //         latestValues: {
+      //           key: key,
+      //           value:latest
+      //         }
+      //     });
+
+      // }
 
     })
     
@@ -55,7 +67,7 @@ const fetchStock = async () => {
 
 const calculateBlackSchols  = async()=>{
   const { strike,volatility,expiration, interest, risk} = state
-  const value = state.latestValues.value["1. open"]
+  const value = state.latestValues.value
   const test = bs.blackScholes(parseFloat(value),parseFloat(strike), parseFloat(expiration), parseFloat(volatility), parseFloat(risk), "call");
   alert(test)
 }
@@ -127,7 +139,7 @@ const fetchRiskHandler = ()=>{
             placeholder = "This will calculated automatically"
             //autoCapitalize = "none"
             //  value={CurrentMarketPrice}
-            value={state.latestValues?.value?state.latestValues.value["1. open"]: ""}
+            value={`${state.latestValues.value}` || 0}
             editable = {false}
             keyboardType  = {"number-pad"}
             // onChangeText = {CurrentMarketPrice => setCurrentMarketPrice(CurrentMarketPrice)}

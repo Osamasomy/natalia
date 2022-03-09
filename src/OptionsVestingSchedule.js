@@ -69,24 +69,36 @@ const fetchStock = async () => {
     
     
     fetchStockApi(stockName,(res)=>{
-        if(res.error){
-          console.log(res.error)
-        }
-        else{
-            const metaData   = res["Meta Data"]?res["Meta Data"]:[]
-            const timeSeries = res["Time Series (Daily)"]?res["Time Series (Daily)"]: []
-            const key = metaData["3. Last Refreshed"]
-            const latest = timeSeries[key.split(" ")[0]]
-            
-            setState({
-                ...state,
-                latestValues: {
-                  key: key,
-                  value:latest
-                }
-            });
 
-        }
+      console.log(res, "<____")
+      console.log(stockName, " <----- ",res.latestPrice , " <----")
+          
+      setState({
+          ...state,
+          latestValues:{
+            value: res.latestPrice
+          }
+        })
+
+        console.log(state.latestValues.value)
+        // if(res.error){
+        //   console.log(res.error)
+        // }
+        // else{
+        //     const metaData   = res["Meta Data"]?res["Meta Data"]:[]
+        //     const timeSeries = res["Time Series (Daily)"]?res["Time Series (Daily)"]: []
+        //     const key = metaData["3. Last Refreshed"]
+        //     const latest = timeSeries[key.split(" ")[0]]
+            
+        //     setState({
+        //         ...state,
+        //         latestValues: {
+        //           key: key,
+        //           value:latest
+        //         }
+        //     });
+
+        // }
     })
 
 }  
@@ -96,7 +108,7 @@ const fetchStock = async () => {
   const showOptionGrantWorth = () => {
     const {stockPriceNow,isVestingOption,optionsVesting,cliff,vestingPeriod,     stockOptionsGrantDate,evaluateDate, numOfOptionsGrandted, strikePrice} = state
      
-    const currentMarketPrice = latestValues?.value?latestValues.value["1. open"]: 0
+    const currentMarketPrice = state?.latestValues?.value || 0
     let optionsVestingPerMonth = 0
     
     if(isVestingOption){
